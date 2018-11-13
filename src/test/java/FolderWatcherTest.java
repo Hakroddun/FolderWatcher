@@ -10,10 +10,12 @@ import java.io.PrintWriter;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 
+import static java.lang.System.out;
+
 public class FolderWatcherTest
 {
-    FolderWatcher watcher;
-    TaskMock task;
+    private FolderWatcher watcher;
+    private TaskMock task;
 
     @Before
     public void setUpWatcher()
@@ -29,29 +31,22 @@ public class FolderWatcherTest
         watcher.setTaskToRun(task);
         WatchEvent.Kind[] kinds = new WatchEvent.Kind[]{StandardWatchEventKinds.ENTRY_CREATE};
         watcher.setKind(kinds);
-        Thread t1 = new Thread(new Runnable()
-        {
-            public void run()
+        Thread t1 = new Thread(() -> {
+            out.println("Creating Create Watcher");
+            try
             {
-                System.out.println("Creating Create Watcher");
-                try
-                {
-                    watcher.WatchFolder();
-                } catch (IOException e)
-                {
-                    e.printStackTrace();
-                } catch (InterruptedException e)
-                {
-                    e.printStackTrace();
-                }
+                watcher.WatchFolder();
+            } catch (IOException | InterruptedException e)
+            {
+                e.printStackTrace();
             }
         });
         t1.setPriority(Thread.MAX_PRIORITY);
         t1.start();
         Thread.sleep(10);
-        System.out.println("Creating Folder");
+        out.println("Creating Folder");
         createFileFolder("D:\\Test\\Data\\CreateFile.txt");
-        System.out.println(task.getFileName());
+        out.println(task.getFileName());
         Assert.assertTrue(task.isTaskExecuted());
     }
 
@@ -63,29 +58,22 @@ public class FolderWatcherTest
         WatchEvent.Kind[] kinds = new WatchEvent.Kind[]{StandardWatchEventKinds.ENTRY_MODIFY};
         watcher.setKind(kinds);
         createFileFolder("D:\\Test\\Data\\ModifyFile.txt");
-        Thread t1 = new Thread(new Runnable()
-        {
-            public void run()
+        Thread t1 = new Thread(() -> {
+            out.println("Creating Modify Watcher");
+            try
             {
-                System.out.println("Creating Modify Watcher");
-                try
-                {
-                    watcher.WatchFolder();
-                } catch (IOException e)
-                {
-                    e.printStackTrace();
-                } catch (InterruptedException e)
-                {
-                    e.printStackTrace();
-                }
+                watcher.WatchFolder();
+            } catch (IOException | InterruptedException e)
+            {
+                e.printStackTrace();
             }
         });
         t1.setPriority(Thread.MAX_PRIORITY);
         t1.start();
         Thread.sleep(10);
-        System.out.println("Editing Folder");
+        out.println("Editing Folder");
         modifyFileFolder("D:\\Test\\Data\\ModifyFile.txt");
-        System.out.println(task.getFileName());
+        out.println(task.getFileName());
         Assert.assertTrue(task.isTaskExecuted());
     }
 
@@ -97,29 +85,22 @@ public class FolderWatcherTest
         WatchEvent.Kind[] kinds = new WatchEvent.Kind[]{StandardWatchEventKinds.ENTRY_DELETE};
         watcher.setKind(kinds);
         createFileFolder("D:\\Test\\Data\\DeleteFile.txt");
-        Thread t1 = new Thread(new Runnable()
-        {
-            public void run()
+        Thread t1 = new Thread(() -> {
+            out.println("Creating Delete Watcher");
+            try
             {
-                System.out.println("Creating Delete Watcher");
-                try
-                {
-                    watcher.WatchFolder();
-                } catch (IOException e)
-                {
-                    e.printStackTrace();
-                } catch (InterruptedException e)
-                {
-                    e.printStackTrace();
-                }
+                watcher.WatchFolder();
+            } catch (IOException | InterruptedException e)
+            {
+                e.printStackTrace();
             }
         });
         t1.setPriority(Thread.MAX_PRIORITY);
         t1.start();
         Thread.sleep(10);
-        System.out.println("Deleting Folder");
+        out.println("Deleting Folder");
         deleteFileFolder("D:\\Test\\Data\\DeleteFile.txt");
-        System.out.println(task.getFileName());
+        out.println(task.getFileName());
         Assert.assertTrue(task.isTaskExecuted());
     }
 
@@ -132,34 +113,27 @@ public class FolderWatcherTest
         watcher.setTaskToRun(task);
         WatchEvent.Kind[] kinds = new WatchEvent.Kind[]{StandardWatchEventKinds.ENTRY_CREATE,StandardWatchEventKinds.ENTRY_MODIFY,StandardWatchEventKinds.ENTRY_DELETE};
         watcher.setKind(kinds);
-        Thread t1 = new Thread(new Runnable()
-        {
-            public void run()
+        Thread t1 = new Thread(() -> {
+            out.println("Creating AllKinds Watcher");
+            try
             {
-                System.out.println("Creating AllKinds Watcher");
-                try
-                {
-                    watcher.WatchFolder();
-                } catch (IOException e)
-                {
-                    e.printStackTrace();
-                } catch (InterruptedException e)
-                {
-                    e.printStackTrace();
-                }
+                watcher.WatchFolder();
+            } catch (IOException | InterruptedException e)
+            {
+                e.printStackTrace();
             }
         });
         t1.setPriority(Thread.MAX_PRIORITY);
         t1.start();
         Thread.sleep(10);
-        System.out.println("Creating Folder");
+        out.println("Creating Folder");
         createFileFolder("D:\\Test\\Data\\AllKindsFile.txt");
-        System.out.println("Editing Folder");
+        out.println("Editing Folder");
         modifyFileFolder("D:\\Test\\Data\\AllKindsFile.txt");
-        System.out.println("Deleting Folder");
+        out.println("Deleting Folder");
         deleteFileFolder("D:\\Test\\Data\\AllKindsFile.txt");
-        System.out.println(task.getFileName());
-        Assert.assertEquals(task.getTimesRun(), 5);
+        out.println(task.getFileName());
+        Assert.assertEquals(5, task.getTimesRun());
     }
 
     private void createFileFolder(String path) throws IOException
@@ -177,7 +151,7 @@ public class FolderWatcherTest
         printWriter.close();
     }
 
-    private void deleteFileFolder(String path) throws IOException
+    private void deleteFileFolder(String path)
     {
         File file = new File(path);
         file.delete();
